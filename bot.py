@@ -4,7 +4,9 @@ import os
 import psycopg2
 import sqlite3 as lite
 import schedule
-################################################################################
+
+
+
 def crawling():
     #'''
     #Args: website_link = string; link of website to be crawled
@@ -27,21 +29,10 @@ def crawling():
         #links.append(f"http://msit.in/media/news{anchors['href']}\n\n")
     
     
-################################################################################
-
-# bot and chat ids
-bot = "1638409055:AAHgC5KE51zFqpLZbw5V5qXRfzdKeczlL-c"
-chat_id = "-1001454545667"
-
-# schedule crawler
-schedule.every().day.at("08:00").do(check_result_send_mess)
-
-# run script infinitely
-while True:
-    schedule.run_pending()
 
 
-################################################################################
+
+
 
 def send_message(chat_id, text):
     '''
@@ -51,12 +42,10 @@ def send_message(chat_id, text):
           text = string; crawled text to be sent
     Returns: None
     '''
-    
-    parameters = {‘chat_id’: chat_id, ‘text’: text}
-    message = requests.post(bot + ‘sendMessage’, data=parameters)
+    parameters = {'chat_id': chat_id, 'text': text}
+    message = requests.post(bot + 'sendMessage', data=parameters)
 
 
-################################################################################
 
 def check_result_send_mess():
     '''
@@ -95,3 +84,18 @@ def check_result_send_mess():
     jobs_db.close()
     
     
+    
+    
+    
+    
+    
+# bot and chat ids
+bot = "1638409055:AAHgC5KE51zFqpLZbw5V5qXRfzdKeczlL-c"
+chat_id = "-1001454545667"
+check_result_send_mess()
+#schedule crawler
+#schedule.every().day.at("08:00").do(check_result_send_mess)
+
+#run script infinitely
+#while True:
+    #schedule.run_pending()
