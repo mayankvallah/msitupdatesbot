@@ -31,32 +31,25 @@ def crawling():
     
 
 
+def get_url(url):
+    response = requests.get(url)
+    content = response.content.decode("utf8")
+    return content
 
 
-
-def send_message(chat_id, text):
-    '''
-    Takes the chat id of a telegram bot and the text that was  crawled from the
-    website and sends it to the bot
-    Args: chat_id = string; chat id of the telegram bot, 
-          text = string; crawled text to be sent
-    Returns: None
-    '''
-    parameters = {'chat_id': chat_id, 'text': text}
-    message = requests.post(bot + 'sendMessage', data=parameters)
-
-
-
-def check_result_send_mess():
-    '''
-    This function looks up the values stored in the SQL database
-    and compares them to the crawled jobs and sends out any jobs
-    not in the db to the telegram bot
-    Args: None
-    Returns: None
-    '''
+def send_message(chat_id, text, doc):
+    TOKEN = "1638409055:AAHgC5KE51zFqpLZbw5V5qXRfzdKeczlL-c"
+    URL = "https://api.telegram.org/bot{}/".format(TOKEN)
+    url = URL + f"sendDocument?chat_id=-1001454545667&caption=\"{text}\"&document={doc}"
+    print(url)
+    get_url(url)
     
-    # try to create SQL database and table to store jobs in, else send error message to bot
+    #parameters = {'chat_id': chat_id, 'text': text}
+    #message = requests.post("1638409055:AAHgC5KE51zFqpLZbw5V5qXRfzdKeczlL-c" + 'sendMessage', data=parameters)
+
+
+
+def check_result_send_mess():    
     try:
        DATABASE_URL = os.environ['DATABASE_URL']
        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
@@ -64,23 +57,22 @@ def check_result_send_mess():
        jobs_db.execute('CREATE TABLE IF NOT EXISTS jobs (id SERIAL, job TEXT NOT NULL)')
     except:
        send_message(chat_id, 'The database could not be accessed')
-        
-    # crawl the jobs from website
+
     jobs_link_pm = crawling()
     
-    # check if there were new jobs added
-    for item in jobs_link_pm:
+    for item in reversed(jobs_link_pm):
         job_exists = jobs_db.execute('SELECT job FROM jobs WHERE job = %s', [item.text])
         
         if len(jobs_db.fetchall()) != 1:
-            mess_content = item.text + item['href']
-            send_message(chat_id, mess_content)
+            mess_content = f"LATEST NEWS: {item.text}"
+            doc = f"http://msit.in{item['href']}"
+            print(doc)
+            send_message("-1001454545667", mess_content, doc)
             jobs_db.execute('INSERT INTO jobs (job) VALUES (%s);', [item.text])
             conn.commit()
         else:
             continue
-            
-    # end SQL connection
+        
     jobs_db.close()
     
     
