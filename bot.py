@@ -78,32 +78,37 @@ def check_result_send_mess():
     jobs_link_pm = crawlingNews()
     notices_link = crawlingNotice()
     
-    for item in reversed(jobs_link_pm):
-        job_exists = jobs_db.execute('SELECT job FROM jobs WHERE job = %s', [item.text])
+    for item1,item2 in zip(reversed(jobs_link_pm),reversed(notices_link)):
+        job_exists = jobs_db.execute('SELECT job FROM jobs WHERE job = %s', [item1.text])
+        job_exists = jobs_db.execute('SELECT job FROM jobs WHERE job = %s', [item2.text])
         
         if len(jobs_db.fetchall()) != 1:
-            mess_content = f"LATEST NEWS: {item.text}"
-            doc = f"http://msit.in{item['href']}"
-            print(doc)
-            send_message("-1001454545667", mess_content, doc)
-            jobs_db.execute('INSERT INTO jobs (job) VALUES (%s);', [item.text])
+            news_content = f"LATEST NEWS: {item1.text}"
+            news_doc = f"http://msit.in{item1['href']}"
+            send_message("-1001454545667", news_content, news_doc)
+            
+            notices_content = f"LATEST NOTICE: {item2.text}"
+            notices_doc = f"http://msit.in{item2['href']}"
+            send_message("-1001454545667", notices_content, notices_doc)
+            jobs_db.execute('INSERT INTO jobs (job) VALUES (%s);', [item1.text])
+            jobs_db.execute('INSERT INTO jobs (job) VALUES (%s);', [item2.text])
             conn.commit()
         else:
             continue
         
-    for item in reversed(notices_link):
-        job_exists = jobs_db.execute('SELECT job FROM jobs WHERE job = %s', [item.text])
+    #for item in reversed(notices_link):
+        #job_exists = jobs_db.execute('SELECT job FROM jobs WHERE job = %s', [item.text])
         
-        if len(jobs_db.fetchall()) != 1:
-            mess_content = f"LATEST NOTICE: {item.text}"
-            doc = f"http://msit.in{item['href']}"
-            print(doc)
-            send_message("-1001454545667", mess_content, doc)
-            jobs_db.execute('INSERT INTO jobs (job) VALUES (%s);', [item.text])
-            conn.commit()
-        else:
-            continue
-
+        #if len(jobs_db.fetchall()) != 1:
+            #mess_content = f"LATEST NOTICE: {item.text}"
+            #doc = 
+            #print(doc)
+            #send_message("-1001454545667", mess_content, doc)
+            #jobs_db.execute('INSERT INTO jobs (job) VALUES (%s);', [item.text])
+            #conn.commit()
+        #else:
+            #continue
+    
     jobs_db.close()
     
     
