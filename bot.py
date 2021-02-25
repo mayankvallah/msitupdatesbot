@@ -108,17 +108,13 @@ def check_result_send_mess():
             news_content = f"<b>LATEST NEWS</b>: {item.text}"
             news_doc = f"http://msit.in{item['href']}"
             send_message("-1001454545667", news_content, news_doc)
-            
-            notices_content = f"LATEST NOTICE: {item2.text}"
-            notices_doc = f"http://msit.in{item2['href']}"
-            send_message("-1001454545667", notices_content, notices_doc)
             jobs_db.execute('INSERT INTO jobs (job) VALUES (%s);', [item.text])
             conn.commit()
         else:
             continue
 
     for item in reversed(notices_link):
-    job_exists = jobs_db.execute('SELECT job FROM jobs WHERE job = %s', [item.text])
+        job_exists = jobs_db.execute('SELECT job FROM jobs WHERE job = %s', [item.text])
         
         if len(jobs_db.fetchall()) != 1:            
             notices_content = f"<b>LATEST NOTICE</b>: {item.text}"
