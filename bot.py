@@ -143,6 +143,6 @@ bot = "1638409055:AAHgC5KE51zFqpLZbw5V5qXRfzdKeczlL-c"
 chat_id = "-1001454545667"
 check_result_send_mess()
 #schedule crawler
-schedule.every().hour.do(check_result_send_mess)
-while True:
-    schedule.run_pending()
+#schedule.every().hour.do(check_result_send_mess)
+#while True:
+    #schedule.run_pending()
