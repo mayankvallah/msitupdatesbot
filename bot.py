@@ -73,7 +73,7 @@ def get_url(url):
 def send_message(chat_id, text, doc):
     TOKEN = "1638409055:AAHgC5KE51zFqpLZbw5V5qXRfzdKeczlL-c"
     URL = "https://api.telegram.org/bot{}/".format(TOKEN)
-    url = URL + f"sendDocument?chat_id=-1001454545667&caption={text}&document={doc}"
+    url = URL + f"sendDocument?chat_id=-1001454545667&parse_mode=html&caption={text}&document={doc}"
     print(url)
     get_url(url)
     
@@ -99,24 +99,37 @@ def check_result_send_mess():
     jobs_link_pm = crawlingNews()
     notices_link = crawlingNotice()
     marquee_link = crawlingMarq()
-    for item1,item2 in zip(reversed(jobs_link_pm),reversed(notices_link)):
-        job_exists = jobs_db.execute('SELECT job FROM jobs WHERE job = %s', [item1.text])
-        job_exists = jobs_db.execute('SELECT job FROM jobs WHERE job = %s', [item2.text])
+    
+    
+    for item in reversed(jobs_link_pm):
+        job_exists = jobs_db.execute('SELECT job FROM jobs WHERE job = %s', [item.text])
         
         if len(jobs_db.fetchall()) != 1:
-            news_content = f"LATEST NEWS: {item1.text}"
-            news_doc = f"http://msit.in{item1['href']}"
+            news_content = f"<b>LATEST NEWS</b>: {item.text}"
+            news_doc = f"http://msit.in{item['href']}"
             send_message("-1001454545667", news_content, news_doc)
             
             notices_content = f"LATEST NOTICE: {item2.text}"
             notices_doc = f"http://msit.in{item2['href']}"
             send_message("-1001454545667", notices_content, notices_doc)
-            jobs_db.execute('INSERT INTO jobs (job) VALUES (%s);', [item1.text])
-            jobs_db.execute('INSERT INTO jobs (job) VALUES (%s);', [item2.text])
+            jobs_db.execute('INSERT INTO jobs (job) VALUES (%s);', [item.text])
             conn.commit()
         else:
             continue
+
+    for item in reversed(notices_link):
+    job_exists = jobs_db.execute('SELECT job FROM jobs WHERE job = %s', [item.text])
         
+        if len(jobs_db.fetchall()) != 1:            
+            notices_content = f"<b>LATEST NOTICE</b>: {item.text}"
+            notices_doc = f"http://msit.in{item['href']}"
+            send_message("-1001454545667", notices_content, notices_doc)
+            jobs_db.execute('INSERT INTO jobs (job) VALUES (%s);', [item.text])
+            conn.commit()
+        else:
+            continue
+
+    
     for item in reversed(marquee_link):
         job_exists = jobs_db.execute('SELECT job FROM jobs WHERE job = %s', [item.text])
         
