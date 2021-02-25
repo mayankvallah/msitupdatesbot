@@ -47,7 +47,23 @@ def crawlingNotice():
     #titles = []
     #x = 0
 
+def crawlingMarq():
+    #'''
+    #Args: website_link = string; link of website to be crawled
+          #link_class = string; class name for job link on website
+    #Returns: jobs_link = list; list of jobs 
+    #'''
+    
+    website_request = requests.get('http://msit.in/')
+    website_content = BeautifulSoup(website_request.content, 'html.parser')
 
+    #extract job description
+    marq_link = website_content.select('div.marquee-text a')
+    return marq_link
+    #links = []
+    #titles = []
+    #x = 0
+    
 def get_url(url):
     response = requests.get(url)
     content = response.content.decode("utf8")
@@ -64,7 +80,12 @@ def send_message(chat_id, text, doc):
     #parameters = {'chat_id': chat_id, 'text': text}
     #message = requests.post("1638409055:AAHgC5KE51zFqpLZbw5V5qXRfzdKeczlL-c" + 'sendMessage', data=parameters)
 
-
+def send_marq(chat_id, text, doc):
+    TOKEN = "1638409055:AAHgC5KE51zFqpLZbw5V5qXRfzdKeczlL-c"
+    URL = "https://api.telegram.org/bot{}/".format(TOKEN)
+    url = URL + f"sendMessage?chat_id=-1001454545667&parse_mode=html&text={text} \n {doc}"
+    print(url)
+    get_url(url)
 
 def check_result_send_mess():    
     try:
@@ -77,7 +98,7 @@ def check_result_send_mess():
 
     jobs_link_pm = crawlingNews()
     notices_link = crawlingNotice()
-    
+    marquee_link = crawlingMarq()
     for item1,item2 in zip(reversed(jobs_link_pm),reversed(notices_link)):
         job_exists = jobs_db.execute('SELECT job FROM jobs WHERE job = %s', [item1.text])
         job_exists = jobs_db.execute('SELECT job FROM jobs WHERE job = %s', [item2.text])
@@ -96,27 +117,27 @@ def check_result_send_mess():
         else:
             continue
         
-    #for item in reversed(notices_link):
-        #job_exists = jobs_db.execute('SELECT job FROM jobs WHERE job = %s', [item.text])
+    for item in reversed(marquee_link):
+        job_exists = jobs_db.execute('SELECT job FROM jobs WHERE job = %s', [item.text])
         
-        #if len(jobs_db.fetchall()) != 1:
-            #mess_content = f"LATEST NOTICE: {item.text}"
-            #doc = 
-            #print(doc)
-            #send_message("-1001454545667", mess_content, doc)
-            #jobs_db.execute('INSERT INTO jobs (job) VALUES (%s);', [item.text])
-            #conn.commit()
-        #else:
-            #continue
+        if len(jobs_db.fetchall()) != 1:
+            mess_content = f"<b>Newsflash!</b>: {item.text}"
+            checker = item['href'].find("media")
+            if checker!=-1:
+                doc = f"http://msit.in{item['href']}"
+            else:
+                doc = f"{item['href']}"
+            print(doc)
+            send_marq("-1001454545667", mess_content, doc)
+            jobs_db.execute('INSERT INTO jobs (job) VALUES (%s);', [item.text])
+            conn.commit()
+        else:
+            continue
     
     jobs_db.close()
     
     
-    
-    
-    
-    
-    
+
 # bot and chat ids
 bot = "1638409055:AAHgC5KE51zFqpLZbw5V5qXRfzdKeczlL-c"
 chat_id = "-1001454545667"
