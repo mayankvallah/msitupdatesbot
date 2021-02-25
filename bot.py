@@ -19,7 +19,7 @@ def crawling():
 
     #extract job description
     jobs_link = website_content.select('div.tab-content a')
-    print(jobs_link)
+    return jobs_link
     #links = []
     #titles = []
     #x = 0
